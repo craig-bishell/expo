@@ -14,7 +14,7 @@ import qrcodeTerminal from 'qrcode-terminal';
 import enableDestroy from 'server-destroy';
 import transformerProxy from 'transformer-proxy';
 import WebSocket from 'ws';
-import { Api, Exp, ProjectSettings, UrlUtils, User } from '@expo/xdl';
+import { Api, Exp, ProjectSettings, UrlUtils, UserManager } from '@expo/xdl';
 import spawnAsync from '@expo/spawn-async';
 
 import sleepAsync from './utils/sleepAsync';
@@ -50,7 +50,7 @@ async function _loginAsCorrectUserAsync(): Promise<void> {
     throw new Error('EXPO_HOME_DEV_ACCOUNT_PASSWORD must be set in your environment.');
   }
 
-  await User.loginAsync('user-pass', {
+  await UserManager.loginAsync('user-pass', {
     username,
     password,
   });
@@ -199,10 +199,7 @@ export async function startRecordingAsync(
 
   // Packager proxy
   let packagerProxy = httpProxy.createProxyServer({
-    target: {
-      host: 'localhost',
-      port: packagerInfo.packagerPort,
-    },
+    target: `http://localhost:${packagerInfo.packagerPort}`,
   });
 
   packagerProxy.on('proxyReq', (proxyReq, req, res, options) => {
@@ -333,8 +330,9 @@ function _recordHTTPStream(
   };
 
   let oldWriteHead = res.writeHead;
-  res.writeHead = function() {
-    oldWriteHead.apply(this, arguments);
+  res.writeHead = function(...args) {
+    // @ts-ignore
+    oldWriteHead.apply(this, args);
 
     _headers = res.getHeaders();
     _writeData();

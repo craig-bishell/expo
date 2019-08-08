@@ -14,6 +14,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true
-  }
+    "resolveJsonModule": true,
+    "typeRoots": ["node_modules/@expo/babel-preset-cli/ts-declarations", "node_modules/@types"]
+  },
 }
